@@ -1,70 +1,104 @@
+import util
+import time
+
+
+class SearchProblem:
+   
+
+    def getStartState(self):
+        util.raiseNotDefined()
+
+    def isGoalState(self, state):
+        util.raiseNotDefined()
+
+    def getSuccessors(self, state):
+        util.raiseNotDefined()
+
+    def getCostOfActions(self, actions):
+        util.raiseNotDefined()
+
+
+def tinyMazeSearch(problem):
+    from game import Directions
+    s = Directions.SOUTH
+    w = Directions.WEST
+    return [s, s, w, s, w, w, s, w]
+
+
 def depthFirstSearch(problem):
     """
-    Implements Depth-First Search (DFS) for the Pacman game.
+    Implements DFS for Pacman.
     """
-    from util import Stack
-    stack = Stack()
-    stack.push((problem.getStartState(), []))  # (current_state, path_to_state)
+    stack = util.Stack()  # Frontier as a stack
+    stack.push((problem.getStartState(), []))
     visited = set()
-    
+
     while not stack.isEmpty():
-        state, actions = stack.pop()
+        state, path = stack.pop()
+
         if state in visited:
             continue
+
         visited.add(state)
-        
+
         if problem.isGoalState(state):
-            return actions
-        
-        for successor, action, _ in problem.getSuccessors(state):
+            return path
+
+        for successor, action, stepCost in problem.getSuccessors(state):
             if successor not in visited:
-                stack.push((successor, actions + [action]))
+                stack.push((successor, path + [action]))
+
     return []
 
 
 def breadthFirstSearch(problem):
     """
-    Implements Breadth-First Search (BFS) for the Pacman game.
+    Implements BFS for Pacman.
     """
-    from util import Queue
-    queue = Queue()
-    queue.push((problem.getStartState(), []))  # (current_state, path_to_state)
+    queue = util.Queue()  # Frontier as a queue
+    queue.push((problem.getStartState(), []))
     visited = set()
-    
+
     while not queue.isEmpty():
-        state, actions = queue.pop()
+        state, path = queue.pop()
+
         if state in visited:
             continue
+
         visited.add(state)
-        
+
         if problem.isGoalState(state):
-            return actions
-        
-        for successor, action, _ in problem.getSuccessors(state):
+            return path
+
+        for successor, action, stepCost in problem.getSuccessors(state):
             if successor not in visited:
-                queue.push((successor, actions + [action]))
+                queue.push((successor, path + [action]))
+
     return []
 
 
 def uniformCostSearch(problem):
     """
-    Implements Uniform-Cost Search (UCS) for the Pacman game.
+    Implements UCS for Pacman.
     """
-    from util import PriorityQueue
-    pq = PriorityQueue()
-    pq.push((problem.getStartState(), [], 0), 0)  # (state, path_to_state, current_cost), priority
+    priority_queue = util.PriorityQueue()
+    priority_queue.push((problem.getStartState(), []), 0)
     visited = {}
-    
-    while not pq.isEmpty():
-        state, actions, cost = pq.pop()
+
+    while not priority_queue.isEmpty():
+        state, path = priority_queue.pop()
+        cost = problem.getCostOfActions(path)
+
         if state in visited and visited[state] <= cost:
             continue
+
         visited[state] = cost
-        
+
         if problem.isGoalState(state):
-            return actions
-        
-        for successor, action, step_cost in problem.getSuccessors(state):
-            new_cost = cost + step_cost
-            pq.push((successor, actions + [action], new_cost), new_cost)
+            return path
+
+        for successor, action, stepCost in problem.getSuccessors(state):
+            new_cost = cost + stepCost
+            priority_queue.push((successor, path + [action]), new_cost)
+
     return []
